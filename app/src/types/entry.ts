@@ -4,7 +4,6 @@ export interface Entry {
   text: string
   is_now: boolean
   completed_at: string | null
-  mood_emoji: string | null
-  mood_note: string | null
+  feeling: string | null
   edited_at: string | null
 }

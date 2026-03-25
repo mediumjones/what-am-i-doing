@@ -1,31 +1,29 @@
 @import 'tailwindcss';
 
 @theme {
-  /* Ink & Paper palette */
-  --color-ink: #1a1a1a;
-  --color-ink-light: #4a4a4a;
-  --color-ink-faint: #8a8a8a;
-  --color-paper: #f5f0eb;
-  --color-paper-dark: #e8e0d8;
-  --color-paper-line: #d4ccc4;
-  --color-accent: #8b4513;
-  --color-accent-light: #a0522d;
-  --color-done: #6b7b6b;
+  --color-fg: #1a1a1a;
+  --color-fg-2: #737373;
+  --color-fg-3: #a3a3a3;
+  --color-bg: #fafafa;
+  --color-border: #e5e5e5;
+  --color-done: #a3a3a3;
+  --color-check: #10b981;
 
-  /* Typography */
-  --font-display: 'Special Elite', cursive;
-  --font-body: 'IBM Plex Serif', Georgia, serif;
+  --font-sans: 'Inter', system-ui, -apple-system, sans-serif;
 
-  /* Spacing */
   --spacing-safe-top: env(safe-area-inset-top, 0px);
   --spacing-safe-bottom: env(safe-area-inset-bottom, 0px);
 }
 
 body {
   margin: 0;
-  background-color: var(--color-paper);
-  color: var(--color-ink);
-  font-family: var(--font-body);
+  background-color: var(--color-bg);
+  color: var(--color-fg);
+  font-family: var(--font-sans);
+  font-size: 16px;
+  line-height: 1.5;
+  letter-spacing: -0.011em;
+  font-weight: 400;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   -webkit-tap-highlight-color: transparent;
@@ -36,16 +34,4 @@ body {
   min-height: 100svh;
   display: flex;
   flex-direction: column;
-}
-
-/* Subtle paper texture via noise */
-body::before {
-  content: '';
-  position: fixed;
-  inset: 0;
-  opacity: 0.03;
-  pointer-events: none;
-  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
-  background-size: 256px 256px;
-  z-index: 9999;
 }

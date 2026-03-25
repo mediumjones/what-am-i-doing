@@ -4,10 +4,10 @@ import type { Entry } from '../types/entry'
 
 interface EntriesState {
   entries: Entry[]
-  addEntry: (text: string) => void
+  addEntry: (text: string, feeling?: string | null) => void
   completeEntry: (id: string) => void
-  updateText: (id: string, text: string) => void
-  setMood: (id: string, emoji: string | null, note: string | null) => void
+  uncompleteEntry: (id: string) => void
+  setFeeling: (id: string, emoji: string | null) => void
 }
 
 export const useEntries = create<EntriesState>()(
@@ -15,7 +15,7 @@ export const useEntries = create<EntriesState>()(
     (set) => ({
       entries: [],
 
-      addEntry: (text) =>
+      addEntry: (text, feeling = null) =>
         set((state) => {
           const now = new Date().toISOString()
           const updated = state.entries.map((e) =>
@@ -27,8 +27,7 @@ export const useEntries = create<EntriesState>()(
             text,
             is_now: true,
             completed_at: null,
-            mood_emoji: null,
-            mood_note: null,
+            feeling,
             edited_at: null,
           }
           return { entries: [entry, ...updated] }
@@ -47,19 +46,21 @@ export const useEntries = create<EntriesState>()(
           ),
         })),
 
-      updateText: (id, text) =>
+      uncompleteEntry: (id) =>
         set((state) => ({
           entries: state.entries.map((e) =>
             e.id === id
-              ? { ...e, text, edited_at: new Date().toISOString() }
-              : e,
+              ? { ...e, completed_at: null, is_now: true }
+              : e.is_now
+                ? { ...e, is_now: false }
+                : e,
           ),
         })),
 
-      setMood: (id, emoji, note) =>
+      setFeeling: (id, emoji) =>
         set((state) => ({
           entries: state.entries.map((e) =>
-            e.id === id ? { ...e, mood_emoji: emoji, mood_note: note } : e,
+            e.id === id ? { ...e, feeling: emoji } : e,
           ),
         })),
     }),
