@@ -8,6 +8,7 @@
   --color-border: #e5e5e5;
   --color-done: #a3a3a3;
   --color-check: #10b981;
+  --color-primary: #1a1a1a;
 
   --font-sans: 'Inter', system-ui, -apple-system, sans-serif;
 
@@ -27,11 +28,10 @@ body {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   -webkit-tap-highlight-color: transparent;
-  overscroll-behavior: none;
 }
 
 #root {
-  min-height: 100svh;
+  min-height: 100dvh;
   display: flex;
   flex-direction: column;
 }

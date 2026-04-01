@@ -2,6 +2,12 @@ import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
 import type { Entry } from '../types/entry'
 
+function genId(): string {
+  if (typeof crypto !== 'undefined' && crypto.randomUUID) return crypto.randomUUID()
+  // Fallback for non-secure contexts (HTTP on LAN)
+  return `${Date.now()}-${Math.random().toString(36).slice(2, 11)}`
+}
+
 interface EntriesState {
   entries: Entry[]
   addEntry: (text: string, feeling?: string | null) => void
@@ -22,7 +28,7 @@ export const useEntries = create<EntriesState>()(
             e.is_now ? { ...e, is_now: false } : e,
           )
           const entry: Entry = {
-            id: crypto.randomUUID(),
+            id: genId(),
             created_at: now,
             text,
             is_now: true,
