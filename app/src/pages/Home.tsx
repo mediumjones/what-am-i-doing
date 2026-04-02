@@ -4,7 +4,7 @@ import { useEntries } from '../store/entries'
 import FeelingPicker from '../components/FeelingPicker'
 import Checkbox from '../components/Checkbox'
 import StrikethroughText from '../components/StrikethroughText'
-import Toast from '../components/Toast'
+import Toast, { type ToastItem } from '../components/Toast'
 import Dialog from '../components/Dialog'
 import { CREATE_TOASTS, COMPLETE_TOASTS, UNCOMPLETE_TOASTS, FEELING_TOASTS, pickToast } from '../constants/toasts'
 import { PLACEHOLDERS } from '../constants/feelings'
@@ -31,37 +31,29 @@ function formatTime(iso: string) {
 export default function Home() {
   const [input, setInput] = useState('')
   const inputRef = useRef<HTMLInputElement>(null)
+  const scrollRef = useRef<HTMLDivElement>(null)
   const [pendingFeeling, setPendingFeeling] = useState<string | null>(null)
   const [placeholder, setPlaceholder] = useState(() => PLACEHOLDERS[Math.floor(Math.random() * PLACEHOLDERS.length)])
   const [completingId, setCompletingId] = useState<string | null>(null)
-  const [toast, setToast] = useState<string | null>(null)
-  const toastTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
-  const rafHandle = useRef<number | null>(null)
+  const [completingWasActive, setCompletingWasActive] = useState(false)
+  const [toasts, setToasts] = useState<ToastItem[]>([])
+  const toastIdRef = useRef(0)
   const [pendingUncompleteId, setPendingUncompleteId] = useState<string | null>(null)
 
   const { entries, addEntry, completeEntry, uncompleteEntry, setFeeling } = useEntries()
 
   // Keep the completing entry as "now" until the card animation finishes
-  const nowEntry = entries.find((e) => e.is_now || e.id === completingId)
+  const nowEntry = entries.find((e) => e.is_now) ?? (completingWasActive ? entries.find((e) => e.id === completingId) : undefined)
   // Show all non-active entries in timeline, plus the completing entry
   // (so it fades into the list while the card is still visible)
   const timeline = entries.filter((e) => !e.is_now || e.id === completingId).reverse()
 
   const showToast = useCallback((msg: string) => {
-    if (toastTimer.current) clearTimeout(toastTimer.current)
-    if (rafHandle.current) cancelAnimationFrame(rafHandle.current)
-    setToast(null)
-    rafHandle.current = requestAnimationFrame(() => {
-      setToast(msg)
-      toastTimer.current = setTimeout(() => setToast(null), 3750)
-    })
-  }, [])
-
-  useEffect(() => {
-    return () => {
-      if (toastTimer.current) clearTimeout(toastTimer.current)
-      if (rafHandle.current) cancelAnimationFrame(rafHandle.current)
-    }
+    const id = ++toastIdRef.current
+    setToasts((prev) => [...prev, { id, message: msg }])
+    setTimeout(() => {
+      setToasts((prev) => prev.filter((t) => t.id !== id))
+    }, 3750)
   }, [])
 
   const scrollToEnd = useCallback(() => {
@@ -100,7 +92,9 @@ export default function Home() {
   const handleComplete = useCallback(
     (id: string) => {
       if (completingId) return
+      const wasActive = entries.some((e) => e.id === id && e.is_now)
       setCompletingId(id)
+      setCompletingWasActive(wasActive)
       haptic()
       showToast(pickToast(COMPLETE_TOASTS, getTimeString()))
       // 1. Entry appears in timeline immediately (via completingId filter)
@@ -114,9 +108,10 @@ export default function Home() {
       //    (entry is already fully visible in timeline)
       setTimeout(() => {
         setCompletingId(null)
+        setCompletingWasActive(false)
       }, 900)
     },
-    [completingId, completeEntry, showToast],
+    [completingId, entries, completeEntry, showToast],
   )
 
   const handleUncomplete = useCallback(
@@ -145,12 +140,12 @@ export default function Home() {
   return (
     <div className="flex flex-col min-h-[100dvh]">
       {/* Toast */}
-      <div className="fixed top-0 left-0 right-0 z-50 px-4 pt-[calc(var(--spacing-safe-top)+0.75rem)] pointer-events-none text-center">
-        <Toast message={toast} />
+      <div className="fixed top-0 left-0 right-0 z-50 px-4 pt-[calc(var(--spacing-safe-top)+0.75rem)] pointer-events-none text-center flex flex-col items-center">
+        <Toast toasts={toasts} />
       </div>
 
-      {/* Timeline */}
-      <div className="flex-1 flex flex-col px-5 pt-[calc(var(--spacing-safe-top)+2rem)]">
+      {/* Timeline — scrollable */}
+      <div ref={scrollRef} className="flex-1 flex flex-col px-5 pt-[calc(var(--spacing-safe-top)+2rem)]">
         <AnimatePresence initial={false}>
         {timeline.map((entry) => {
           const isCompleting = completingId === entry.id
