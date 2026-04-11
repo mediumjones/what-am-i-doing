@@ -10,6 +10,7 @@ import { CREATE_TOASTS, COMPLETE_TOASTS, UNCOMPLETE_TOASTS, FEELING_TOASTS, pick
 import { PLACEHOLDERS } from '../constants/feelings'
 import Tooltip from '../components/Tooltip'
 import DevMenu, { DEV_MENU_ENABLED } from '../dev/DevMenu'
+import { useVisualViewport } from '../hooks/useVisualViewport'
 
 function haptic() {
   if (navigator.vibrate) navigator.vibrate(8)
@@ -29,6 +30,7 @@ function formatTime(iso: string) {
 }
 
 export default function Home() {
+  const viewportHeight = useVisualViewport()
   const [input, setInput] = useState('')
   const inputRef = useRef<HTMLInputElement>(null)
   const [pendingFeeling, setPendingFeeling] = useState<string | null>(null)
@@ -134,7 +136,7 @@ export default function Home() {
     <>
     {DEV_MENU_ENABLED && <DevMenu />}
 
-    <div className="fixed inset-0 flex flex-col">
+    <div className="fixed top-0 left-0 right-0 flex flex-col overflow-hidden" style={{ height: viewportHeight }}>
 
       {/* Scroll area — active card + timeline */}
       <div className="flex-1 overflow-y-auto px-5 pt-[calc(var(--spacing-safe-top)+0.75rem)]">
