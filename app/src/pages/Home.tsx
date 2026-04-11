@@ -136,7 +136,7 @@ export default function Home() {
     <>
     {DEV_MENU_ENABLED && <DevMenu />}
 
-    <div className="fixed top-0 left-0 right-0 flex flex-col overflow-hidden" style={{ height: viewportHeight }}>
+    <div className="fixed inset-x-0 top-0 flex flex-col overflow-hidden" style={{ height: viewportHeight }}>
 
       {/* Scroll area — active card + timeline */}
       <div className="flex-1 overflow-y-auto px-5 pt-[calc(var(--spacing-safe-top)+0.75rem)]">
@@ -280,6 +280,11 @@ export default function Home() {
             type="text"
             value={input}
             onChange={(e) => setInput(e.target.value)}
+            onFocus={() => {
+              // Prevent iOS from scrolling the page to reveal the input
+              setTimeout(() => { window.scrollTo(0, 0); document.documentElement.scrollTop = 0 }, 50)
+              setTimeout(() => { window.scrollTo(0, 0); document.documentElement.scrollTop = 0 }, 150)
+            }}
             onKeyDown={(e) => {
               if (e.key === 'Enter') {
                 e.preventDefault()
