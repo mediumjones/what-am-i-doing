@@ -3,8 +3,8 @@
   "configurations": [
     {
       "name": "app",
-      "runtimeExecutable": "npm",
-      "runtimeArgs": ["run", "dev"],
+      "runtimeExecutable": "/bin/sh",
+      "runtimeArgs": ["-c", "PATH=/Users/cody/.nvm/versions/node/v24.13.1/bin:$PATH npm run dev"],
       "port": 5173,
       "cwd": "app"
     }

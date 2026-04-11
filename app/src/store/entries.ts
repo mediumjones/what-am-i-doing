@@ -14,6 +14,7 @@ interface EntriesState {
   completeEntry: (id: string) => void
   uncompleteEntry: (id: string) => void
   setFeeling: (id: string, emoji: string | null) => void
+  promoteLatestIncomplete: () => void
 }
 
 export const useEntries = create<EntriesState>()(
@@ -69,6 +70,19 @@ export const useEntries = create<EntriesState>()(
             e.id === id ? { ...e, feeling: emoji } : e,
           ),
         })),
+
+      promoteLatestIncomplete: () =>
+        set((state) => {
+          if (state.entries.some((e) => e.is_now)) return state
+          // entries are newest-first, so the first incomplete one is the most recent
+          const target = state.entries.find((e) => !e.completed_at && !e.is_now)
+          if (!target) return state
+          return {
+            entries: state.entries.map((e) =>
+              e.id === target.id ? { ...e, is_now: true } : e,
+            ),
+          }
+        }),
     }),
     {
       name: 'waid-entries',
